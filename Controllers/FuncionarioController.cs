@@ -44,12 +44,12 @@ public class FuncionarioController : ControllerBase
     public IActionResult Criar(Funcionario funcionario)
     {
         _context.Funcionarios.Add(funcionario);
-        _context.SaveChanges();
+        _context.SaveChanges(); // ✅ Salvar no Banco SQL
 
         var tableClient = GetTableClient();
         var funcionarioLog = new FuncionarioLog(funcionario, TipoAcao.Inclusao, funcionario.Departamento, Guid.NewGuid().ToString());
 
-        tableClient.UpsertEntity(funcionarioLog);
+        tableClient.UpsertEntity(funcionarioLog); // ✅ Salvar log no Azure Table
 
         return CreatedAtAction(nameof(ObterPorId), new { id = funcionario.Id }, funcionario);
     }
@@ -68,14 +68,15 @@ public class FuncionarioController : ControllerBase
         funcionarioBanco.EmailProfissional = funcionario.EmailProfissional;
         funcionarioBanco.Departamento = funcionario.Departamento;
         funcionarioBanco.Salario = funcionario.Salario;
+        funcionarioBanco.DataAdmissao = funcionario.DataAdmissao;
 
-        _context.Funcionarios.Update(funcionarioBanco);
+        _context.Funcionarios.Update(funcionarioBanco); // ✅ Atualizar no Banco SQL
         _context.SaveChanges();
 
         var tableClient = GetTableClient();
         var funcionarioLog = new FuncionarioLog(funcionarioBanco, TipoAcao.Atualizacao, funcionarioBanco.Departamento, Guid.NewGuid().ToString());
 
-        tableClient.UpsertEntity(funcionarioLog);
+        tableClient.UpsertEntity(funcionarioLog); // ✅ Salvar log no Azure Table
 
         return Ok();
     }
@@ -88,13 +89,13 @@ public class FuncionarioController : ControllerBase
         if (funcionarioBanco == null)
             return NotFound();
 
-        _context.Funcionarios.Remove(funcionarioBanco);
+        _context.Funcionarios.Remove(funcionarioBanco); // ✅ Remover do Banco SQL
         _context.SaveChanges();
 
         var tableClient = GetTableClient();
         var funcionarioLog = new FuncionarioLog(funcionarioBanco, TipoAcao.Remocao, funcionarioBanco.Departamento, Guid.NewGuid().ToString());
 
-        tableClient.UpsertEntity(funcionarioLog);
+        tableClient.UpsertEntity(funcionarioLog); // ✅ Salvar log no Azure Table
 
         return NoContent();
     }
